@@ -27,6 +27,9 @@ states:
   log: 'jq(.)'
   action:
     function: image-magick
+    files:
+      - key: icon.png
+        scope: instance
     input:
       commands:
         - convert icon.png -resize 100x100 mypic.png
