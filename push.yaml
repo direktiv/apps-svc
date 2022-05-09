@@ -12,8 +12,7 @@ states:
   action:
     function: key
     input: 'jq(.)'
-  transform: 
-    args: 'jq(.return)'
+  transform: 'jq(.args = .return | del(.return))'
   transition: b
 - id: b
   type: action 
