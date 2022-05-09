@@ -1,17 +1,13 @@
 functions:
-- id: usql
-  image: localhost:5000/usql
-  type: knative-workflow
+- id: pq
+  type: subflow
+  workflow: "/pq"
 states:
 - id: a
   type: action
   action:
-    function: usql
-    secrets:
-    - dbuser
-    - dbpass
-    - dbaddr
+    function: pq
     input:
-      connection: 'jq(("pg://" + (.secrets.dbuser | @uri) + ":" + (.secrets.dbpass | @uri) + "@" + .secrets.dbaddr))'
       queries:
-        - query: 'CREATE TABLE IF NOT EXISTS apps (uri TEXT, tag TEXT, created_at TIMESTAMP DEFAULT now())'
+        - 'CREATE TABLE IF NOT EXISTS apps (uri TEXT, tag TEXT, created_at TIMESTAMP DEFAULT now(), PRIMARY KEY (uri, tag))'
+

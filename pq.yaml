@@ -1,0 +1,17 @@
+functions:
+- id: usql
+  image: localhost:5000/usql
+  type: knative-workflow
+states:
+- id: a
+  type: action 
+  log: 'jq(.)'
+  action:
+    function: usql 
+    secrets:
+    - dbuser
+    - dbpass
+    - dbaddr
+    input:
+      connection: 'jq(("pg://" + (.secrets.dbuser | @uri) + ":" + (.secrets.dbpass | @uri) + "@" + .secrets.dbaddr))'
+      queries: 'jq([{query: .queries[], args: .args}])'
