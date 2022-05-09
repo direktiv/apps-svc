@@ -3,7 +3,7 @@ functions:
   id: key
   workflow: '/uri-tag-key'
 - id: document
-  image: direktiv/document
+  image: localhost:5000/document
   type: knative-workflow
 states:
 - id: a

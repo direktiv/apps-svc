@@ -3,7 +3,7 @@ functions:
   id: key
   workflow: '/uri-key'
 - id: image-magick
-  image: direktiv/image-magick
+  image: localhost:5000/image-magick
   type: knative-workflow
 states:
 - id: a

@@ -1,6 +1,6 @@
 functions:
 - id: usql
-  image: direktiv/usql
+  image: localhost:5000/usql
   type: knative-workflow
 states:
 - id: a
