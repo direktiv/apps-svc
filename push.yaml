@@ -1,0 +1,36 @@
+functions:
+- type: subflow
+  id: key
+  workflow: '/uri-tag-key'
+- id: document
+  image: direktiv/document
+  type: knative-workflow
+states:
+- id: a
+  type: action 
+  log: 'jq(.)'
+  action:
+    function: key
+    input: 'jq(.)'
+  transform: 
+    args: 'jq(.return)'
+  transition: b
+- id: b
+  type: action 
+  log: 'jq(.)'
+  action:
+    funcion: document 
+    input: 'jq(.swagger)'
+  transition: c
+- id: c
+  type: setter
+  log: 'jq(.)'
+  variables:
+  - scope: namespace
+    key: 'jq(("spec_" + .args.key))'
+    mimeType: 'application/yaml'
+    value: 'jq(.swagger)'
+  - scope: namespace 
+    key: 'jq(("md_" + .args.key))'
+    mimeType: 'text/markdown'
+    value: 'jq(.return)'

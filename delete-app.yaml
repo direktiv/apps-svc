@@ -1,0 +1,65 @@
+functions:
+- type: subflow
+  id: key
+  workflow: '/uri-tag-key'
+- type: subflow
+  id: key2
+  workflow: '/uri-key'
+- id: usql
+  image: direktiv/usql
+  type: knative-workflow
+- type: subflow 
+  id: delete-tag
+  workflow: '/delete-tag'
+states:
+- id: a
+  type: action 
+  log: 'jq(.)'
+  action:
+    function: key2
+    input: 'jq(.)'
+  transform: 
+    args: 'jq(.return)'
+  transition: b
+- id: b
+  type: action
+  action:
+    function: usql
+    secrets:
+    - dbuser
+    - dbpass
+    - dbaddr
+    input:
+      connection: 'jq(("pg://" + (.secrets.dbuser | @uri) + ":" + (.secrets.dbpass | @uri) + "@" + .secrets.dbaddr))'
+      queries:
+        - query: "SELECT tag FROM apps WHERE uri = :'URI'"
+          args:
+          - 'jq("URI=" + .args.uri)'
+  transition: c
+- id: c
+  type: action 
+  log: 'jq(.)'
+  action:
+    function: key2
+    input: 
+      uri: 'jq(.uri)'
+  transform: 
+    args: 'jq(.return)'
+  transition: d
+- id: d
+  type: setter 
+  log: 'jq(.)'
+  variables:
+  - scope: namespace 
+    key: 'jq(("icon_" + .args.key))'
+    value: 'jq(null)'
+  - scope: namespace 
+    key: 'jq(("tags_" + .args.key))'
+    value: 'jq(null)'
+  transition: e
+- id: e
+  type: foreach
+  array: 'jq([{uri: .uri, tag: .return.queries[0].result[].tag}])'
+  action: 
+    function: delete-tag
+    input: 'jq(.)'

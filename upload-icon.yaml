@@ -1,0 +1,48 @@
+functions:
+- type: subflow
+  id: key
+  workflow: '/uri-key'
+- id: image-magick
+  image: direktiv/image-magick
+  type: knative-workflow
+states:
+- id: a
+  type: action 
+  log: 'jq(.)'
+  action:
+    function: key
+    input: 'jq(.)'
+  transform: 
+    args: 'jq(.return)'
+  transition: b
+- id: b
+  type: setter
+  variables:
+  - key: icon.png
+    scope: instance
+    mimeType: application/octet-stream
+    value: 'jq(.data)'
+  transition: c
+- id: c
+  type: action
+  log: 'jq(.)'
+  variables:
+  - scope: instance
+    key: icon.png
+    mimeType: application/octet-stream
+  action:
+    function: image-magick
+    input:
+      commands:
+        - convert icon.png -resize 100x100 mypic.png
+      return:
+        - mypic.png
+  transition: d
+- id: d
+  type: setter
+  log: 'jq(.)'
+  variables:
+  - scope: namespace
+    key: 'jq(("icon_" + .args.key))'
+    mimeType: application/octet-stream
+    value: 'jq(.return."mypic.png")'

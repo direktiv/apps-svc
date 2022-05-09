@@ -1,0 +1,21 @@
+functions:
+- type: subflow
+  id: key
+  workflow: '/uri-key'
+states:
+- id: a
+  type: action 
+  log: 'jq(.)'
+  action:
+    function: key
+    input: 'jq(.)'
+  transform: 
+    args: 'jq(.return)'
+  transition: b
+- id: b
+  type: setter
+  log: 'jq(.)'
+  variables:
+  - scope: namespace
+    key: 'jq(("icon_" + .args.key))'
+    value: 'jq(null)'

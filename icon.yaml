@@ -1,0 +1,38 @@
+functions:
+- type: subflow
+  id: key
+  workflow: '/uri-key'
+states:
+- id: a
+  type: action 
+  log: 'jq(.)'
+  action:
+    function: key
+    input: 'jq(.)'
+  transform: 
+    args: 'jq(.return)'
+  transition: b
+- id: b
+  type: getter
+  log: 'jq(.)'
+  variables:
+  - scope: namespace
+    key: 'jq(("icon_" + .args.key))'
+    as: x
+  transform: 'jq({output: .var.x})'
+  transition: c
+- id: c
+  type: switch 
+  log: 'jq(.)'
+  conditions:
+  - condition: 'jq(.output == null)'
+    transition: d
+- id: d
+  type: getter
+  log: 'jq(.)'
+  variables:
+  - scope: namespace
+    key: "icon_placeholder"
+    as: x
+  transform: 'jq({output: .var.x})'
+

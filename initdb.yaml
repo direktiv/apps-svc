@@ -1,0 +1,17 @@
+functions:
+- id: usql
+  image: direktiv/usql
+  type: knative-workflow
+states:
+- id: a
+  type: action
+  action:
+    function: usql
+    secrets:
+    - dbuser
+    - dbpass
+    - dbaddr
+    input:
+      connection: 'jq(("pg://" + (.secrets.dbuser | @uri) + ":" + (.secrets.dbpass | @uri) + "@" + .secrets.dbaddr))'
+      queries:
+        - query: 'CREATE TABLE IF NOT EXISTS apps (uri TEXT, tag TEXT, created_at TIMESTAMP DEFAULT now())'

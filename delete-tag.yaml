@@ -1,0 +1,89 @@
+functions:
+- type: subflow
+  id: key
+  workflow: '/uri-tag-key'
+- type: subflow
+  id: key2
+  workflow: '/uri-key'
+- id: usql
+  image: direktiv/usql
+  type: knative-workflow
+states:
+- id: a
+  type: action 
+  log: 'jq(.)'
+  action:
+    function: key
+    input: 'jq(.)'
+  transform: 
+    args: 'jq(.return)'
+  transition: b
+- id: b
+  type: action
+  action:
+    function: usql
+    secrets:
+    - dbuser
+    - dbpass
+    - dbaddr
+    input:
+      connection: 'jq(("pg://" + (.secrets.dbuser | @uri) + ":" + (.secrets.dbpass | @uri) + "@" + .secrets.dbaddr))'
+      queries:
+        - query: "DELETE FROM apps WHERE uri = :'URI' AND tag = :'TAG'"
+          args:
+          - 'jq("URI=" + .args.uri)'
+          - 'jq("TAG=" + .args.tag)'
+  transition: c
+- id: c
+  type: setter 
+  log: 'jq(.)'
+  variables:
+  - scope: namespace 
+    key: 'jq(("md_" + .args.key))'
+    value: 'jq(null)'
+  - scope: namespace 
+    key: 'jq(("spec_" + .args.key))'
+    value: 'jq(null)'
+  transition: d
+- id: d
+  type: action
+  log: 'jq(.)'
+  action:
+    function: usql
+    secrets:
+    - dbuser
+    - dbpass
+    - dbaddr
+    input:
+      connection: 'jq(("pg://" + (.secrets.dbuser | @uri) + ":" + (.secrets.dbpass | @uri) + "@" + .secrets.dbaddr))'
+      queries:
+        - query: "SELECT COUNT(*) FROM apps WHERE uri = :'URI'"
+          args:
+          - 'jq("URI=" + .args.uri)'
+  transition: e
+- id: e
+  type: switch 
+  log: 'jq(.)'
+  conditions:
+  - condition: 'jq(.return.queries[0].result[0] == 0)'
+    transition: f
+- id: f
+  type: action 
+  log: 'jq(.)'
+  action:
+    function: key2
+    input: 
+      uri: 'jq(.uri)'
+  transform: 
+    args: 'jq(.return)'
+  transition: g
+- id: g
+  type: setter 
+  log: 'jq(.)'
+  variables:
+  - scope: namespace 
+    key: 'jq(("icon_" + .args.key))'
+    value: 'jq(null)'
+  - scope: namespace 
+    key: 'jq(("tags_" + .args.key))'
+    value: 'jq(null)'

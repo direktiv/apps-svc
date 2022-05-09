@@ -1,0 +1,10 @@
+functions:
+states:
+- id: a
+  type: getter
+  log: 'jq(.)'
+  variables:
+  - scope: namespace
+    key: "list"
+    as: x
+  transform: 'jq({output: .var.x})'

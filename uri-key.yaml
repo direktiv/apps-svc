@@ -1,0 +1,27 @@
+states:
+- id: a
+  type: validate
+  log: 'jq(.)'
+  schema:
+    type: object
+    properties:
+      uri:
+        type: string 
+        format: data-url  
+    required: ["uri"]
+    additionalProperties: false
+  subject: 'jq(.)'
+  transition: b
+- id: b
+  type: noop 
+  log: 'jq(.)'
+  transform: 'jq(.uri |= sub("docker.io/";"")'
+  transition: c
+- id: c
+  type: noop
+  log: 'jq(.)'
+  transform: 
+    key: 'jq(.uri |= @base64 | .uri |= gsub("=";"") | .uri)'
+    uri: 'jq(.uri)'
+
+
