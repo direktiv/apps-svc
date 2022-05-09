@@ -32,7 +32,7 @@ states:
   log: 'jq(.)'
   variables:
   - scope: namespace
-    key: "icon_placeholder"
+    key: "icon.png"
     as: x
   transform: 'jq({output: .var.x})'
 
