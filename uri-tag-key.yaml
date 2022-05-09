@@ -17,7 +17,7 @@ states:
 - id: b
   type: noop 
   log: 'jq(.)'
-  transform: 'jq(.uri |= sub("docker.io/";"")'
+  transform: 'jq(.uri |= sub("docker.io/";""))'
   transition: c
 - id: c
   type: noop
