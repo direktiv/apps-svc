@@ -11,7 +11,7 @@ states:
       tag:
         type: string 
     required: ["uri", "tag"]
-    additionalProperties: false
+    # additionalProperties: false
   subject: 'jq(.)'
   transition: b
 - id: b

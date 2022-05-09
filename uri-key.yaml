@@ -9,7 +9,7 @@ states:
         type: string 
         format: data-url  
     required: ["uri"]
-    additionalProperties: false
+    # additionalProperties: false
   subject: 'jq(.)'
   transition: b
 - id: b
