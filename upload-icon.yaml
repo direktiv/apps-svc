@@ -26,10 +26,6 @@ states:
 - id: c
   type: action
   log: 'jq(.)'
-  variables:
-  - scope: instance
-    key: icon.png
-    mimeType: application/octet-stream
   action:
     function: image-magick
     input:
