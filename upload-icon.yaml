@@ -43,4 +43,4 @@ states:
   - scope: namespace
     key: 'jq(("icon_" + .args.key))'
     mimeType: application/octet-stream
-    value: 'jq(.return."mypic.png")'
+    value: 'jq(.return.images[0].result)'
