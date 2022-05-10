@@ -46,11 +46,18 @@ states:
   transform: 'jq(.spec = .return.output.result | del(.return))'
   transition: generate-docs
 - id: generate-docs
-  type: noop
-  # type: action 
-  # action:
-  #   funcion: docs 
-  #   input: 'jq(.data)'
+  type: action 
+  action:
+    funcion: docs 
+    files:
+    - key: spec
+      scope: instance 
+      as: swagger.yaml
+    - key: docs.gotmpl
+      scope: namespace
+      as: template
+    input: 
+      template: template
   transition: store-data
 - id: store-data
   type: setter
@@ -62,10 +69,10 @@ states:
   - scope: namespace
     key: 'jq(("spec_" + .args.key))'
     value: 'jq(.spec)'
-  # - scope: namespace 
-  #   key: 'jq(("md_" + .args.key))'
-  #   mimeType: 'text/markdown'
-  #   value: 'jq(.return)'
+  - scope: namespace 
+    key: 'jq(("md_" + .args.key))'
+    mimeType: 'text/markdown'
+    value: 'jq(.return)'
   transition: update-database
 - id: update-database
   type: action 
