@@ -72,7 +72,7 @@ states:
   - scope: namespace 
     key: 'jq(("md_" + .args.key))'
     mimeType: 'text/markdown'
-    value: 'jq(.return)'
+    value: 'jq(.return.readme | @base64d)'
   transition: update-database
 - id: update-database
   type: action 
