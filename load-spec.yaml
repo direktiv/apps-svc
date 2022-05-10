@@ -2,6 +2,9 @@ functions:
 - type: subflow
   id: key
   workflow: "/uri-tag-key"
+- type: knative-workflow
+  id: yaml
+  image: localhost:5000/yaml2json
 states:
 - id: a
   type: action
@@ -23,4 +26,31 @@ states:
   type: noop
   log: 'jq(.)'
   transform: 'jq(del(.args) | .swagger = .var.x | del(.var))'
+  transition: d
+- id: d
+  type: setter
+  log: 'jq(.)'
+  variables:
+    - scope: instance
+      key: spec
+      mimeType: text/plain
+      value: 'jq(.swagger)'
+  transition: e
+- id: e
+  type: action 
+  log: 'jq(.)'
+  action:
+    function: yaml 
+    files:
+      - key: spec
+        scope: instance
+    input:
+      data: spec
+      output-format: json 
+      input-type: file
+  transition: f
+- id: f
+  type: noop
+  log: 'jq(.)'
+  transform: 'jq(.spec = .return | del(.return))'
 
