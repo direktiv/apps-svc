@@ -20,4 +20,3 @@ states:
     key: 'jq(("spec_" + .args.key))'
     as: x
   transform: 'jq({output: .var.x})'
-
