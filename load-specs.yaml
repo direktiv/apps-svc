@@ -1,0 +1,38 @@
+functions:
+- type: subflow
+  id: load-spec
+  workflow: "/load-spec"
+states:
+- id: a
+  type: noop
+  log: 'jq(.)'
+  transform: 'jq(.short = [] | .long = [])'
+  transition: b
+- id: b
+  type: switch
+  log: 'jq(.)'
+  conditions:
+  - condition: 'jq(.data | length > 0)'
+    transform: 'jq(.iter = .data[0] | del(.data[0]))'
+    transition: c
+  defaultTransition: e
+- id: c
+  type: action
+  log: 'jq(.)'
+  action:
+    function: load-spec
+    input: 'jq(.iter)'
+  transition: d
+- id: d
+  type: noop
+  log: 'jq(.)'
+  transform: 'jq(.long += [.return] | del(.return))'
+  transition: b
+- id: e
+  type: noop
+  log: 'jq(.)'
+  transform: 
+    short: 'jq([.long[0]])'
+    long: 'jq(.long)'
+
+
