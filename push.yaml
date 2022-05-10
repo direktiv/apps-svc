@@ -48,7 +48,7 @@ states:
 - id: generate-docs
   type: action 
   action:
-    funcion: docs 
+    function: docs 
     files:
     - key: spec
       scope: instance 
