@@ -5,10 +5,10 @@
 Follow these steps to get started.
 
 * Clone the following apps and push them to your docker repository on `localhost:5000`:
-  * github.com/direktiv-apps/image-magick
-  * github.com/direktiv-apps/swagger2markdown
-  * github.com/direktiv-apps/usql
-  * github.com/direktiv-apps/yaml2json
+  * [github.com/direktiv-apps/image-magick](https://github.com/direktiv-apps/image-magick)
+  * [github.com/direktiv-apps/swagger2markdown](https://github.com/direktiv-apps/swagger2markdown)
+  * [github.com/direktiv-apps/usql](https://github.com/direktiv-apps/usql)
+  * [github.com/direktiv-apps/yaml2json](https://github.com/direktiv-apps/yaml2json)
 * Choose a postgres database server for the services to use. One option is to port-forward the same database server used by Direktiv.
 * Create credentials and a database on the database server.
 * Use Direktiv's git mirroring functionality to clone this repository into a namespace called `apps-svc`.
