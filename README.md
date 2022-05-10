@@ -107,6 +107,27 @@ This API can return a list of all known tags for a given app `{{uri}}`. If no ma
 
 This API returns a list of all known apps and all of their known tags, with a short description of what each does. It requires no arguments because it returns all results. If you receive abnormal data from this API something went wrong during the `rebuild` step.
 
+Sample Output:
+
+```json
+{
+	"bravo": [
+		{
+			"created_at": "2022-05-10T04:34:09.166283Z",
+			"description": "Usql client for Direktiv",
+			"tag": "latest"
+		}
+	],
+	"charlie": [
+		{
+			"created_at": "2022-05-10T04:33:56.354059Z",
+			"description": "Usql client for Direktiv",
+			"tag": "latest"
+		}
+	]
+}
+```
+
 ## Get Long List
 
 `GET /api/namespaces/apps-svc/tree/list-expanded?op=wait&field=output&raw-output=true&ctype=application/json`
