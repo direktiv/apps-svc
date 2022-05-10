@@ -101,6 +101,20 @@ This API returns generated Markdown documentation for the swagger specification 
 
 This API can return a list of all known tags for a given app `{{uri}}`. If no match can be found the response will be an empty 200 OK.
 
+Sample Output:
+
+```json
+{
+	"tags": [
+		{
+			"created_at": "2022-05-10T02:15:06.478118Z",
+			"tag": "latest"
+		}
+	],
+	"uri": "charlie"
+}
+```
+
 ## Get Short List
 
 `GET /api/namespaces/apps-svc/tree/list?op=wait&field=output&raw-output=true&ctype=application/json`
