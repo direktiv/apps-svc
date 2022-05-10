@@ -71,3 +71,44 @@ Deleting data is a work-in-progress. You may notice that there are some workflow
 
 # APIs
 
+## Get Icon (PNG)
+
+`GET /api/namespaces/apps-svc/tree/icon?op=wait&input.uri={{uri}}&field=output&raw-output=true&ctype=image/png`
+
+This API returns a icon-sized PNG file for the app identified by `{{uri}}`. This API returns a placeholder icon even if none were defined and even if the app doesn't exist.
+
+## Get Spec (JSON)
+
+`GET /api/namespaces/apps-svc/tree/spec?op=wait&input.uri={{uri}}&input.tag={{tag}}&field=output&raw-output=true&ctype=application/json`
+
+This API returns a JSON representation of the swagger specification uploaded to an app. Both `{{uri}}` and `{{tag}}` are required, and if no match can be found the response will be an empty 200 OK. 
+
+## Get Swagger (YAML)
+
+`GET /api/namespaces/apps-svc/tree/get-swagger?op=wait&input.uri={{uri}}&input.tag={{tag}}&field=output&raw-output=true&ctype=application/yaml`
+
+This API returns the original YAML representation of the swagger specification uploaded to an app. Both `{{uri}}` and `{{tag}}` are required, and if no match can be found the response will be an empty 200 OK. 
+
+## Get Docs (Markdown)
+
+`GET /api/namespaces/apps-svc/tree/md?op=wait&input.uri={{uri}}&input.tag={{tag}}&field=output&raw-output=true&ctype=text/markdown`
+
+This API returns generated Markdown documentation for the swagger specification uploaded to an app. Both `{{uri}}` and `{{tag}}` are required, and if no match can be found the response will be an empty 200 OK. 
+
+## Get Tags
+
+`GET /api/namespaces/apps-svc/tree/tags?op=wait&input.uri={{uri}}&field=output&raw-output=true&ctype=application/yaml`
+
+This API can return a list of all known tags for a given app `{{uri}}`. If no match can be found the response will be an empty 200 OK.
+
+## Get Short List
+
+`GET /api/namespaces/apps-svc/tree/list?op=wait&field=output&raw-output=true&ctype=application/json`
+
+This API returns a list of all known apps and all of their known tags, with a short description of what each does. It requires no arguments because it returns all results. If you receive abnormal data from this API something went wrong during the `rebuild` step.
+
+## Get Long List
+
+`GET /api/namespaces/apps-svc/tree/list-expanded?op=wait&field=output&raw-output=true&ctype=application/json`
+
+This API returns an expanded list of all known apps and all of their known tags, with a short description of what each does. It requires no arguments because it returns all results. If you receive abnormal data from this API something went wrong during the `rebuild` step.
