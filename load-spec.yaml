@@ -1,0 +1,26 @@
+functions:
+- type: subflow
+  id: key
+  workflow: "/uri-tag-key"
+states:
+- id: a
+  type: action
+  log: 'jq(.)'
+  action:
+    function: key
+    input: 'jq(.)'
+  transform: 'jq(.args = .return | del(.return))'
+  transition: b
+- id: b
+  type: getter
+  log: 'jq(.)'
+  variables:
+    - scope: namespace
+      key: 'jq(("spec_" + .args.key))'
+      as: x
+  transition: c
+- id: c
+  type: noop
+  log: 'jq(.)'
+  transform: 'jq(del(.args) | .swagger = .var.x | del(.var))'
+
