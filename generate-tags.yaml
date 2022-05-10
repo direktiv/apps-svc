@@ -1,0 +1,25 @@
+functions:
+- type: subflow
+  id: key
+  workflow: "/uri-key"
+states:
+- id: a
+  type: noop
+  log: 'jq(.)'
+  transform: 'jq(.data = [.data[] | del(.uri)])'
+  transition: b
+- id: b
+  type: action
+  log: 'jq(.)'
+  action:
+    function: key
+    input: 'jq(.)'
+  transform: 'jq(.args = .return | del(.return))'
+  transition: c
+- id: c
+  type: setter
+  log: 'jq(.)'
+  variables:
+  - scope: namespace
+    key: 'jq(("tags_" + .args.key))'
+    value: 'jq({uri: .uri, tags: .data})'
