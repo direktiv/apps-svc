@@ -52,5 +52,5 @@ states:
 - id: f
   type: noop
   log: 'jq(.)'
-  transform: 'jq(.spec = .return | del(.return))'
+  transform: 'jq(.spec = .return.output.result | del(.return, .swagger, .uri))'
 

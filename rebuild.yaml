@@ -18,7 +18,7 @@ states:
       queries:
         - "SELECT uri, tag, created_at FROM apps ORDER BY uri DESC, created_at DESC"
         - "SELECT DISTINCT uri FROM apps"
-  transform: 'jq({data: .return.return.queries[0].result, uris: [.return.return.queries[1].result[].uri]} | .short = [] | .long = [])'
+  transform: 'jq({data: .return.return.queries[0].result, uris: [.return.return.queries[1].result[].uri]} | .short = {} | .long = {})'
   transition: b
 - id: b
   type: switch
@@ -51,7 +51,7 @@ states:
     input:
       uri: 'jq(.iter)'
       data: 'jq(.search)'
-  transform: 'jq(.short += .return.short | .long += .return.long | del(.return))'
+  transform: 'jq(.short[.iter] = .return.short | .long[.iter] = .return.long | del(.return))'
   transition: b
 - id: f
   type: setter
