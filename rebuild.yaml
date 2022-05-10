@@ -1,3 +1,6 @@
+description: |
+  Service to regenerate the API responses.
+  This should be called after changing data to apply the changes fully.
 functions:
 - id: pq
   type: subflow 
@@ -9,9 +12,8 @@ functions:
   type: subflow 
   workflow: "/load-specs"
 states:
-- id: a
+- id: lookup-apps
   type: action
-  log: 'jq(.)'
   action:
     function: pq
     input: 
@@ -19,43 +21,38 @@ states:
         - "SELECT uri, tag, created_at FROM apps ORDER BY uri DESC, created_at DESC"
         - "SELECT DISTINCT uri FROM apps"
   transform: 'jq({data: .return.return.queries[0].result, uris: [.return.return.queries[1].result[].uri]} | .short = {} | .long = {})'
-  transition: b
-- id: b
+  transition: loop
+- id: loop
   type: switch
-  log: 'jq(.)'
   conditions:
   - condition: 'jq(.uris | length > 0)'
     transform: 'jq(.iter = .uris[0] | del(.uris[0]))'
-    transition: c
-  defaultTransition: f
-- id: c
+    transition: search-one-app
+  defaultTransition: store-lists
+- id: search-one-app
   type: noop
-  log: 'jq(.)'
   transform: 'jq(.search = [{iter: .iter, x: .data[]} | select(.iter == .x.uri) | .x])'
-  transition: d
-- id: d
+  transition: generate-tags-response
+- id: generate-tags-response
   type: action
-  log: 'jq(.)'
   action:
     function: generate-tags
     input:
       uri: 'jq(.iter)'
       data: 'jq(.search)'
   transform: 'jq(del(.return))'
-  transition: e
-- id: e
+  transition: load-app-specs
+- id: load-app-specs
   type: action
-  log: 'jq(.)'
   action:
     function: load-specs
     input:
       uri: 'jq(.iter)'
       data: 'jq(.search)'
   transform: 'jq(.short[.iter] = .return.short | .long[.iter] = .return.long | del(.return))'
-  transition: b
-- id: f
+  transition: loop
+- id: store-lists
   type: setter
-  log: 'jq(.)'
   variables:
   - scope: namespace
     key: "list"

@@ -1,36 +1,33 @@
+description: |
+  Subflow to process spec for every version of an app.
 functions:
 - type: subflow
   id: load-spec
   workflow: "/load-spec"
 states:
-- id: a
+- id: init
   type: noop
-  log: 'jq(.)'
   transform: 'jq(.short = [] | .long = [])'
-  transition: b
-- id: b
+  transition: loop
+- id: loop
   type: switch
-  log: 'jq(.)'
   conditions:
   - condition: 'jq(.data | length > 0)'
     transform: 'jq(.iter = .data[0] | del(.data[0]))'
-    transition: c
-  defaultTransition: e
-- id: c
+    transition: load-one-spec
+  defaultTransition: finish
+- id: load-one-spec
   type: action
-  log: 'jq(.)'
   action:
     function: load-spec
     input: 'jq(.iter)'
-  transition: d
-- id: d
+  transition: append-results
+- id: append-results
   type: noop
-  log: 'jq(.)'
   transform: 'jq(.long += [.return] | del(.return))'
-  transition: b
-- id: e
+  transition: loop
+- id: finish
   type: noop
-  log: 'jq(.)'
   transform: 
     short: 'jq(.long[0] | [{created_at: .created_at, description: .spec.info.description, tag: .tag}])'
     long: 'jq(.long)'

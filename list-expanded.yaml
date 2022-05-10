@@ -1,7 +1,9 @@
+description: |
+  Service to retrieve an expanded list of all known apps. 
+  GET /api/namespaces/apps-svc/tree/list-expanded?op=wait&field=output&raw-output=true&ctype=application/json
 states:
-- id: a
+- id: retrieve-list
   type: getter
-  log: 'jq(.)'
   variables:
   - scope: namespace
     key: "list_expanded"

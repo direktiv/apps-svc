@@ -1,24 +1,23 @@
+description: |
+  Subflow to process list of tags for all versions of an app.
 functions:
 - type: subflow
   id: key
   workflow: "/uri-key"
 states:
-- id: a
+- id: init
   type: noop
-  log: 'jq(.)'
   transform: 'jq(.data = [.data[] | del(.uri)])'
-  transition: b
-- id: b
+  transition: stringify-args
+- id: stringify-args
   type: action
-  log: 'jq(.)'
   action:
     function: key
     input: 'jq(.)'
   transform: 'jq(.args = .return | del(.return))'
-  transition: c
-- id: c
+  transition: store-tags
+- id: store-tags
   type: setter
-  log: 'jq(.)'
   variables:
   - scope: namespace
     key: 'jq(("tags_" + .args.key))'

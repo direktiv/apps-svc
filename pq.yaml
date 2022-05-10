@@ -1,11 +1,14 @@
+description: |
+  A usql wrapper workflow for database operations so calling workflows don't need to construct their own connection strings.
+  Ensure that the database secrets have been configured.
+  Note that dbaddr should include a database name. For example: 192.168.1.1/apps
 functions:
 - id: usql
   image: localhost:5000/usql
   type: knative-workflow
 states:
-- id: a
+- id: sql
   type: action 
-  log: 'jq(.)'
   action:
     function: usql 
     secrets:

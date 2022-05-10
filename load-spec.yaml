@@ -1,3 +1,5 @@
+description: |
+  Subflow to process spec for a single version of an app.
 functions:
 - type: subflow
   id: key
@@ -6,39 +8,34 @@ functions:
   id: yaml
   image: localhost:5000/yaml2json
 states:
-- id: a
+- id: stringify-args
   type: action
-  log: 'jq(.)'
   action:
     function: key
     input: 'jq(.)'
   transform: 'jq(.args = .return | del(.return))'
-  transition: b
-- id: b
+  transition: retrieve-swagger
+- id: retrieve-swagger
   type: getter
-  log: 'jq(.)'
   variables:
     - scope: namespace
       key: 'jq(("spec_" + .args.key))'
       as: x
-  transition: c
-- id: c
+  transition: cleanup-data
+- id: cleanup-data
   type: noop
-  log: 'jq(.)'
   transform: 'jq(del(.args) | .swagger = .var.x | del(.var))'
-  transition: d
-- id: d
+  transition: swagger-tempfile
+- id: swagger-tempfile
   type: setter
-  log: 'jq(.)'
   variables:
     - scope: instance
       key: spec
       mimeType: text/plain
       value: 'jq(.swagger | @base64d)'
-  transition: e
-- id: e
-  type: action 
-  log: 'jq(.)'
+  transition: parse-swagger
+- id: parse-swagger
+  type: action
   action:
     function: yaml 
     files:
@@ -48,9 +45,8 @@ states:
       data: spec
       output-format: json 
       input-type: file
-  transition: f
-- id: f
+  transition: cleanup-output
+- id: cleanup-output
   type: noop
-  log: 'jq(.)'
   transform: 'jq(.spec = .return.output.result | del(.return, .swagger, .uri))'
 

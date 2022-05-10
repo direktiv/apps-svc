@@ -1,13 +1,13 @@
 description: |
-  Service to retrieve an app's swagger documentation (in JSON form). 
-  GET /api/namespaces/apps-svc/tree/spec?op=wait&input.uri={{uri}}&input.tag={{tag}}&field=output&raw-output=true&ctype=application/json
+  Service to retrieve an app's swagger documentation (in YAML form). 
+  GET /api/namespaces/apps-svc/tree/get-swagger?op=wait&input.uri={{uri}}&input.tag={{tag}}&field=output&raw-output=true&ctype=application/yaml
 functions:
 - type: subflow
   id: key
   workflow: '/uri-tag-key'
 states:
 - id: stringify-args
-  type: action
+  type: action 
   action:
     function: key
     input: 'jq(.)'
@@ -18,6 +18,6 @@ states:
   type: getter
   variables:
   - scope: namespace
-    key: 'jq(("spec_" + .args.key))'
+    key: 'jq(("swagger_" + .args.key))'
     as: x
   transform: 'jq({output: .var.x})'

@@ -1,7 +1,10 @@
+description: |
+  A workflow to generate unique strings from app args. 
+  Call this one when you have a URI and a TAG. 
+  Call /uri-key if you don't have a tag you care about.
 states:
-- id: a
+- id: validate-input
   type: validate
-  log: 'jq(.)'
   schema:
     type: object
     properties:
@@ -11,17 +14,14 @@ states:
       tag:
         type: string 
     required: ["uri", "tag"]
-    # additionalProperties: false
   subject: 'jq(.)'
-  transition: b
-- id: b
+  transition: trim-docker
+- id: trim-docker
   type: noop 
-  log: 'jq(.)'
   transform: 'jq(.uri |= sub("docker.io/";""))'
-  transition: c
-- id: c
+  transition: encode-string
+- id: encode-string
   type: noop
-  log: 'jq(.)'
   transform:
     uri: 'jq(.uri)'
     tag: 'jq(.tag)'

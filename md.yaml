@@ -1,20 +1,21 @@
+description: |
+  Service to retrieve an app's markdown documentation. 
+  GET /api/namespaces/apps-svc/tree/md?op=wait&input.uri={{uri}}&input.tag={{tag}}&field=output&raw-output=true&ctype=text/markdown
 functions:
 - type: subflow
   id: key
   workflow: '/uri-tag-key'
 states:
-- id: a
+- id: stringify-args
   type: action 
-  log: 'jq(.)'
   action:
     function: key
     input: 'jq(.)'
   transform: 
     args: 'jq(.return)'
-  transition: b
-- id: b
+  transition: retrieve-docs
+- id: retrieve-docs
   type: getter
-  log: 'jq(.)'
   variables:
   - scope: namespace
     key: 'jq(("md_" + .args.key))'

@@ -1,3 +1,7 @@
+description: |
+  Service to upload a app icon.
+  The instance input must be a JSON object containing 'uri' and 'data', where 'data' should be a base64 encoded PNG.
+  The workflow will process the PNG to standard size.
 functions:
 - type: subflow
   id: key
@@ -6,25 +10,23 @@ functions:
   image: localhost:5000/image-magick
   type: knative-workflow
 states:
-- id: a
-  type: action 
-  log: 'jq(.)'
+- id: stringify-args
+  type: action
   action:
     function: key
     input: 'jq(.)'
   transform: 'jq(.args = .return | del(.return))'
-  transition: b
-- id: b
+  transition: icon-tempfile
+- id: icon-tempfile
   type: setter
   variables:
   - key: icon.png
     scope: instance
     mimeType: application/octet-stream
     value: 'jq(.data)'
-  transition: c
-- id: c
+  transition: convert-icon
+- id: convert-icon
   type: action
-  log: 'jq(.)'
   action:
     function: image-magick
     files:
@@ -35,10 +37,9 @@ states:
         - convert icon.png -resize 100x100 mypic.png
       return:
         - mypic.png
-  transition: d
-- id: d
+  transition: store-icon
+- id: store-icon
   type: setter
-  log: 'jq(.)'
   variables:
   - scope: namespace
     key: 'jq(("icon_" + .args.key))'
