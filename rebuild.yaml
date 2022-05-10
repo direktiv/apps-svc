@@ -1,0 +1,68 @@
+functions:
+- id: pq
+  type: subflow 
+  workflow: "/pq"
+- id: generate-tags
+  type: subflow 
+  workflow: "/generate-tags"
+- id: load-specs
+  type: subflow 
+  workflow: "/load-specs"
+states:
+- id: a
+  type: action
+  log: 'jq(.)'
+  action:
+    function: pq
+    input: 
+      queries:
+        - "SELECT uri, tag, created_at FROM apps ORDER BY uri DESC, created_at DESC"
+        - "SELECT DISTINCT uri FROM apps"
+  transform: 'jq({data: .return.return.queries[0].result, uris: [.return.return.queries[1].result[].uri]} | .short = [] | .long = [])'
+  transition: b
+- id: b
+  type: switch
+  log: 'jq(.)'
+  conditions:
+  - condition: 'jq(.uris | length > 0)'
+    transform: 'jq(.iter = .uris[0] | del(.uris[0]))'
+    transition: c
+  defaultTransition: f
+- id: c
+  type: noop
+  log: 'jq(.)'
+  transform: 'jq(.search = [{iter: .iter, x: .data[]} | select(.iter == .x.uri) | .x])'
+  transition: d
+- id: d
+  type: action
+  log: 'jq(.)'
+  action:
+    function: generate-tags
+    input:
+      uri: 'jq(.iter)'
+      data: 'jq(.search)'
+  transform: 'jq(del(.return))'
+  transition: e
+- id: e
+  type: action
+  log: 'jq(.)'
+  action:
+    function: load-specs
+    input:
+      uri: 'jq(.iter)'
+      data: 'jq(.search)'
+  transform: 'jq(.short += .return.short | .long += .return.long | del(.return))'
+  transition: b
+- id: f
+  type: setter
+  log: 'jq(.)'
+  variables:
+  - scope: namespace
+    key: "list"
+    value: 'jq(.short)'
+  - scope: namespace
+    key: "list_expanded"
+    value: 'jq(.long)'
+  
+        
+  
