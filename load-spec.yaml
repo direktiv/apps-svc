@@ -19,7 +19,7 @@ states:
   type: getter
   variables:
     - scope: namespace
-      key: 'jq(("spec_" + .args.key))'
+      key: 'jq(("swagger_" + .args.key))'
       as: x
   transition: cleanup-data
 - id: cleanup-data
