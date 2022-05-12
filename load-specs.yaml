@@ -29,7 +29,7 @@ states:
 - id: finish
   type: noop
   transform: 
-    short: 'jq(.long[0] | [{created_at: .created_at, description: .spec.info.description, tag: .tag}])'
+    short: 'jq([.long[] | {created_at: .created_at, description: .spec.info.description, tag: .tag}])'
     long: 'jq(.long)'
 
 
