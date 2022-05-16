@@ -6,7 +6,7 @@ functions:
   workflow: "/uri-tag-key"
 - type: knative-workflow
   id: yaml
-  image: localhost:5000/yaml2json
+  image: direktiv/yaml2json:v0.0.1
 states:
 - id: stringify-args
   type: action

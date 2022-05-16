@@ -4,7 +4,7 @@ description: |
   Note that dbaddr should include a database name. For example: 192.168.1.1/apps
 functions:
 - id: usql
-  image: localhost:5000/usql
+  image: direktiv/usql:v0.0.1
   type: knative-workflow
 states:
 - id: sql

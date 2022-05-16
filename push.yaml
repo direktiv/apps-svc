@@ -8,14 +8,14 @@ functions:
   id: key
   workflow: '/uri-tag-key'
 - id: docs
-  image: localhost:5000/swagger2markdown
+  image: direktiv/swagger2markdown:v0.0.1
   type: knative-workflow
 - id: pq
   type: subflow
   workflow: "/pq"
 - type: knative-workflow
   id: yaml
-  image: localhost:5000/yaml2json
+  image: direktiv/yaml2json:v0.0.1
 states:
 - id: stringify-args
   type: action 

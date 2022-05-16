@@ -7,7 +7,7 @@ functions:
   id: key
   workflow: '/uri-key'
 - id: image-magick
-  image: localhost:5000/image-magick
+  image: direktiv/image-magick:v0.0.1
   type: knative-workflow
 states:
 - id: stringify-args

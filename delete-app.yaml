@@ -8,7 +8,7 @@ functions:
   id: key2
   workflow: '/uri-key'
 - id: usql
-  image: localhost:5000/usql
+  image: direktiv/usql:v0.0.1
   type: knative-workflow
 - type: subflow 
   id: delete-tag
