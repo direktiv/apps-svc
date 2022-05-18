@@ -8,7 +8,7 @@ functions:
   id: key
   workflow: '/uri-tag-key'
 - id: docs
-  image: direktiv/swagger2markdown:v0.0.1
+  image: direktiv/swagger2markdown:v0.0.2
   type: knative-workflow
 - id: pq
   type: subflow
