@@ -17,13 +17,6 @@ functions:
   id: yaml
   image: direktiv/yaml2json:v0.0.1
 states:
-- id: stringify-args
-  type: action 
-  action:
-    function: key
-    input: 'jq(.)'
-  transform: 'jq(.args = .return | del(.return))'
-  transition: swagger-tempfile
 - id: swagger-tempfile
   type: setter
   variables:
@@ -43,7 +36,15 @@ states:
       data: spec
       output-format: json 
       input-type: file
-  transform: 'jq(.spec = .return.output.result | del(.return))'
+  transform: 'jq(.spec = .return.output.result | del(.return) | .uri = .spec.info."x-direktiv-meta".container | .tag = .spec.info.version)'
+  transition: stringify-args
+- id: stringify-args
+  type: action 
+  log: 'jq(("Handling app: " + .uri + ":" + .tag))'
+  action:
+    function: key
+    input: 'jq(.)'
+  transform: 'jq(.args = .return | del(.return))'
   transition: generate-docs
 - id: generate-docs
   type: action 
