@@ -30,6 +30,21 @@ states:
   type: noop
   transform: 
     short: 'jq([.long[] | {created_at: .created_at, description: .spec.info.description, tag: .tag}])'
-    long: 'jq(.long)'
+    # long returns a subset from the info block from swagger.yaml. It sorts by create_at to get the info from the 
+    # last pushed image
+    long: |
+      js(
+        d = data["long"]
+        d.sort(function (a, b) {
+          var dateA = new Date(a.created_at), dateB = new Date(b.created_at)
+          return dateB - dateA
+        });
+        r = d[0].spec.info
+        r["container"] = r["x-direktiv-meta"]["container"]
+        r["categories"] = r["x-direktiv-meta"]["categories"]
+        delete r["x-direktiv-meta"]
+        r["created"] = d[0].created_at
+        return r
+      )
 
 
