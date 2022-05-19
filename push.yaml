@@ -4,6 +4,9 @@ description: |
   The workflow will process the swagger spec and generate other information.
   The /rebuild workflow should be executed after this one. Either periodically as a cron, or manually.
 functions:
+- id: html
+  image: direktiv/showdownjs:v0.0.1
+  type: knative-workflow
 - type: subflow
   id: key
   workflow: '/uri-tag-key'
@@ -59,6 +62,21 @@ states:
       as: template
     input: 
       template: template
+  transform: 'jq(.docs = .return.readme | del(.return))'
+  transition: make-html
+- id: make-html
+  type: action
+  action:
+    function: html
+    files:
+    - scope: instance
+      key: readme.md
+      as: input.md
+    # we store the html directly into the namespace
+    input: 
+      scope: namespace
+      name: jq(("html_" + .args.key))
+  transform: 'jq(.html = .return.html | del(.return))'
   transition: store-data
 - id: store-data
   type: setter
