@@ -4,7 +4,7 @@ description: |
 functions:
 - id: pq
   type: subflow
-  workflow: "/pq"
+  workflow: "pq"
 states:
 - id: a
   type: action

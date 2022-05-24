@@ -4,7 +4,7 @@ description: |
 functions:
 - type: subflow
   id: key
-  workflow: '/uri-tag-key'
+  workflow: 'uri-tag-key'
 states:
 - id: stringify-args
   type: action

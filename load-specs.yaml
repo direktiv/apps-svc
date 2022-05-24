@@ -3,7 +3,7 @@ description: |
 functions:
 - type: subflow
   id: load-spec
-  workflow: "/load-spec"
+  workflow: "load-spec"
 states:
 - id: init
   type: noop

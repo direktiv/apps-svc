@@ -5,7 +5,7 @@ description: |
 functions:
 - type: subflow
   id: key
-  workflow: '/uri-key'
+  workflow: 'uri-key'
 - id: image-magick
   image: direktiv/image-magick:v0.0.1
   type: knative-workflow

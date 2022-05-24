@@ -3,7 +3,7 @@ description: |
 functions:
 - type: subflow
   id: key
-  workflow: "/uri-key"
+  workflow: "uri-key"
 states:
 - id: init
   type: noop

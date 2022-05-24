@@ -4,13 +4,13 @@ description: |
 functions:
 - id: pq
   type: subflow 
-  workflow: "/pq"
+  workflow: "pq"
 - id: generate-tags
   type: subflow 
-  workflow: "/generate-tags"
+  workflow: "generate-tags"
 - id: load-specs
   type: subflow 
-  workflow: "/load-specs"
+  workflow: "load-specs"
 states:
 - id: lookup-apps
   type: action

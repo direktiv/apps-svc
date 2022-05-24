@@ -3,10 +3,10 @@ description: |
 functions:
 - type: subflow
   id: key
-  workflow: '/uri-tag-key'
+  workflow: 'uri-tag-key'
 - type: subflow
   id: key2
-  workflow: '/uri-key'
+  workflow: 'uri-key'
 - id: usql
   image: direktiv/usql:v0.0.1
   type: knative-workflow
