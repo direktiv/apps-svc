@@ -14,6 +14,18 @@ functions:
   id: delete-tag
   workflow: 'delete-tag'
 states:
+- id: validate-input
+  type: validate
+  schema:
+    type: object
+    properties:
+      uri:
+        type: string 
+        format: data-url 
+      tag:
+        type: string 
+    required: ["uri", "tag"]
+  transition: a
 - id: a
   type: action 
   log: 'jq(.)'
@@ -25,6 +37,7 @@ states:
   transition: b
 - id: b
   type: action
+  log: jq(.)
   action:
     function: usql
     secrets:
