@@ -63,21 +63,21 @@ states:
     input: 
       template: template
   transform: 'jq(.docs = .return.readme | del(.return))'
-  transition: make-html
-- id: make-html
-  type: action
-  action:
-    function: html
-    files:
-    - scope: instance
-      key: readme.md
-      as: input.md
-    # we store the html directly into the namespace
-    input: 
-      scope: namespace
-      name: jq(("html_" + .args.key))
-  transform: 'jq(.html = .return.html | del(.return))'
   transition: store-data
+# - id: make-html
+#   type: action
+#   action:
+#     function: html
+#     files:
+#     - scope: instance
+#       key: readme.md
+#       as: input.md
+#     # we store the html directly into the namespace
+#     input: 
+#       scope: namespace
+#       name: jq(("html_" + .args.key))
+#   transform: 'jq(.html = .return.html | del(.return))'
+#   transition: store-data
 - id: store-data
   type: setter
   variables:
