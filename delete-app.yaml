@@ -21,7 +21,6 @@ states:
     properties:
       uri:
         type: string 
-        format: data-url 
       tag:
         type: string 
     required: ["uri", "tag"]
