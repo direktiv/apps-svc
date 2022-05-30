@@ -18,48 +18,27 @@ states:
     function: pq
     input: 
       queries:
-        - "SELECT uri, tag, created_at FROM apps ORDER BY uri DESC, created_at DESC"
-        - "SELECT DISTINCT uri FROM apps"
-  transform: 'jq({data: .return.return.queries[0].result, uris: [.return.return.queries[1].result[].uri]} | .short = {} | .long = {})'
-  transition: loop
-- id: loop
-  type: switch
-  conditions:
-  - condition: 'jq(.uris | length > 0)'
-    transform: 'jq(.iter = .uris[0] | del(.uris[0]))'
-    transition: search-one-app
-  defaultTransition: store-lists
-- id: search-one-app
+      # select get maxdate app from database. that is not the version but 
+      # most likely it the latest will be the latest version
+      - >- 
+        SELECT a.uri, a.created_at, a.tag, encode(info, 'base64') as info from apps 
+        AS a INNER JOIN (SELECT uri, max(created_at) AS maxdate FROM apps GROUP BY uri) tm 
+        ON a.uri = tm.uri AND a.created_at = tm.maxdate
+  transform: 'jq({data: .return.return.queries[0].result})'
+  transition: prepare
+- id: prepare
   type: noop
-  transform: 'jq(.search = [{iter: .iter, x: .data[]} | select(.iter == .x.uri) | .x])'
-  transition: generate-tags-response
-- id: generate-tags-response
-  type: action
-  action:
-    function: generate-tags
-    input:
-      uri: 'jq(.iter)'
-      data: 'jq(.search)'
-  transform: 'jq(del(.return))'
-  transition: load-app-specs
-- id: load-app-specs
-  type: action
-  action:
-    function: load-specs
-    input:
-      uri: 'jq(.iter)'
-      data: 'jq(.search)'
-  transform: 'jq(.short[.iter] = .return.short | .long[.iter] = .return.long | del(.return))'
-  transition: loop
-- id: store-lists
+  transform: 
+    # gets the info from db and uses fromjson to convert it. then rearrange it
+    list: >-
+      jq([ .data[] | .uri as $uri |  (.info | @base64d | fromjson ) as $meta |
+        { $uri: { "tag": .tag, "uri": $uri, "created": .created_at, 
+        "categories": $meta."x-direktiv-meta".categories, "description": 
+        $meta.description, "title": $meta.title  }  } ])
+  transition: setter
+- id: setter
   type: setter
   variables:
   - scope: namespace
-    key: "list"
-    value: 'jq(.short)'
-  - scope: namespace
     key: "list_expanded"
-    value: 'jq(.long)'
-  
-        
-  
+    value: 'jq(.list)'

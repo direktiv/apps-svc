@@ -1,37 +1,38 @@
 description: |
   Service to retrieve an app's icon. 
-  GET /api/namespaces/apps-svc/tree/icon?op=wait&input.uri={{uri}}&field=output&raw-output=true&ctype=image/png
+  GET /api/namespaces/apps-svc/tree/icon?op=wait&input.uri={{uri}}&field=icon&raw-output=true&ctype=image/png
 functions:
-- type: subflow
-  id: key
-  workflow: 'uri-key'
+- id: pq
+  type: subflow
+  workflow: db/pq
 states:
-- id: stringify-args
+- id: fetch-icon
   type: action 
   action:
-    function: key
-    input: 'jq(.)'
+    function: pq 
+    input:
+      queries: 
+        - SELECT encode(icon, 'base64') as icon FROM apps where uri = :'URI' and icon is not null order by created_at desc limit 1
+      args:
+        - 'jq("URI=" + .uri)'
+  transition: check-default
   transform: 
-    args: 'jq(.return)'
-  transition: retrieve-icon
-- id: retrieve-icon
-  type: getter
-  variables:
-  - scope: namespace
-    key: 'jq(("icon_" + .args.key))'
-    as: x
-  transform: 'jq({output: .var.x})'
-  transition: check-exists
-- id: check-exists
-  type: switch 
+    # set to empty string if no response
+    icon: jq(.return.return.queries[0].result[0].icon // "")
+- id: check-default
+  type: switch
+  log: jq(.icon)
   conditions:
-  - condition: 'jq(.output == null)'
-    transition: retrieve-placeholder
-- id: retrieve-placeholder
+     # check for empty string
+  - condition: jq(.icon == "")
+    transition: load-default
+  
+# load default if there is no logo
+- id: load-default
   type: getter
+  log: fetching default icon
   variables:
-  - scope: namespace
-    key: "icon.png"
-    as: x
-  transform: 'jq({output: .var.x})'
-
+  - key: icon.png
+    scope: namespace
+  transform: 
+    icon: jq(.var."icon.png")

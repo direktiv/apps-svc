@@ -4,22 +4,35 @@ description: |
   The workflow will process the swagger spec and generate other information.
   The /rebuild workflow should be executed after this one. Either periodically as a cron, or manually.
 functions:
-# - id: html
-#   image: direktiv/showdownjs:v0.0.1
-#   type: knative-workflow
-# - type: subflow
-#   id: key
-#   workflow: 'uri-tag-key'
-# - id: docs
-#   image: direktiv/swagger2markdown:v0.0.2
-#   type: knative-workflow
-# - id: pq
-#   type: subflow
-#   workflow: "pq"
+- id: docs
+  image: direktiv/swagger2markdown:v0.0.2
+  type: knative-workflow
+- id: pq
+  type: subflow
+  workflow: db/pq
+- id: logo
+  type: subflow
+  workflow: upload-icon
 - type: knative-workflow
   id: yaml
   image: direktiv/yaml2json:v0.0.1
 states:
+- id: validate
+  type: validate
+  schema:
+    title: Data
+    type: object
+    required:
+    - data
+    properties:
+      data:
+        type: string
+        title: Base64 Swagger File
+      logo:
+        type: string
+        title: Base64 Logo File
+  transition: swagger-tempfile
+
 - id: swagger-tempfile
   type: setter
   variables:
@@ -40,67 +53,56 @@ states:
       output-format: json 
       input-type: file
   transform: 'jq(.spec = .return.output.result | del(.return) | .uri = .spec.info."x-direktiv-meta".container | .tag = .spec.info.version)'
-#   transition: stringify-args
-# - id: stringify-args
-#   type: action 
-#   log: 'jq(("Handling app: " + .uri + ":" + .tag))'
-#   action:
-#     function: key
-#     input: 'jq(.)'
-#   transform: 'jq(.args = .return | del(.return))'
-#   transition: generate-docs
-# - id: generate-docs
-#   type: action 
-#   action:
-#     function: docs 
-#     files:
-#     - key: spec
-#       scope: instance 
-#       as: swagger.yaml
-#     - key: docs.gotmpl
-#       scope: namespace
-#       as: template
-#     input: 
-#       template: template
-#   transform: 'jq(.docs = .return.readme | del(.return))'
-#   transition: store-data
-# # - id: make-html
-# #   type: action
-# #   action:
-# #     function: html
-# #     files:
-# #     - scope: instance
-# #       key: readme.md
-# #       as: input.md
-# #     # we store the html directly into the namespace
-# #     input: 
-# #       scope: namespace
-# #       name: jq(("html_" + .args.key))
-# #   transform: 'jq(.html = .return.html | del(.return))'
-# #   transition: store-data
-# - id: store-data
-#   type: setter
-#   variables:
-#   - scope: namespace
-#     key: 'jq(("swagger_" + .args.key))'
-#     mimeType: 'text/plain'
-#     value: 'jq(.data | @base64d)'
-#   - scope: namespace
-#     key: 'jq(("spec_" + .args.key))'
-#     value: 'jq(.spec)'
-#   - scope: namespace 
-#     key: 'jq(("md_" + .args.key))'
-#     mimeType: 'text/markdown'
-#     value: 'jq(.return.readme | @base64d)'
-#   transition: update-database
-# - id: update-database
-#   type: action 
-#   action:
-#     function: pq 
-#     input:
-#       queries: 
-#         - "UPDATE apps SET created_at = now() WHERE uri = :'URI' AND tag = :'TAG'"
-#         - "INSERT INTO apps (uri, tag) VALUES (:'URI', :'TAG') ON CONFLICT (uri,tag) DO NOTHING"
-#       args:
-#         - 'jq("URI=" + .args.uri)'
-#         - 'jq("TAG=" + .args.tag)'
+  transition: generate-docs
+
+# generate markdown 
+- id: generate-docs
+  type: action 
+  action:
+    function: docs 
+    files:
+    - key: spec
+      scope: instance 
+      as: swagger.yaml
+    - key: docs.gotmpl
+      scope: namespace
+      as: template
+    input: 
+      template: template
+  transform: 'jq(.docs = .return.readme | del(.return))'
+  transition: update-database
+- id: update-database
+  type: action 
+  action:
+    function: pq 
+    input:
+      queries: 
+        - "UPDATE apps SET created_at = now() WHERE uri = :'URI' AND tag = :'TAG'"
+        - >- 
+          INSERT INTO apps (uri, tag, md, icon, swagger, info) VALUES 
+          (:'URI', :'TAG', decode(:'DOCS', 'base64'), null, decode(:'SWAGGER', 'base64'), decode(:'INFO', 'base64'))
+          ON CONFLICT (uri,tag) DO 
+          UPDATE SET md = decode(:'DOCS', 'base64'), swagger = decode(:'SWAGGER', 'base64'), info = decode(:'INFO', 'base64')
+      args:
+        - 'jq("URI=" + .uri)'
+        - 'jq("TAG=" + .tag)'
+        - 'jq("DOCS=" + .docs)'
+        - 'jq("SWAGGER=" + .data)'
+        - 'jq("INFO=" + (.spec.info | @base64 ))'
+  transition: logo-check
+
+# if logo is in that request we process it
+- id: logo-check
+  type: switch
+  conditions:
+  - condition: jq(.logo // "")
+    transition: resize-logo
+
+# if there is a logo in the request we resize it
+- id: resize-logo
+  type: action
+  action:
+    function: logo
+    input:
+      uri: jq(.uri)
+      data: jq(.logo)

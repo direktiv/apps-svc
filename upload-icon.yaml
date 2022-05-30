@@ -3,19 +3,22 @@ description: |
   The instance input must be a JSON object containing 'uri' and 'data', where 'data' should be a base64 encoded PNG.
   The workflow will process the PNG to standard size.
 functions:
-- type: subflow
-  id: key
-  workflow: 'uri-key'
+- id: pq
+  type: subflow
+  workflow: db/pq
 - id: image-magick
   image: direktiv/image-magick:v0.0.1
   type: knative-workflow
 states:
-- id: stringify-args
-  type: action
-  action:
-    function: key
-    input: 'jq(.)'
-  transform: 'jq(.args = .return | del(.return))'
+- id: validate
+  type: validate
+  schema:
+    title: Upload Logo
+    type: object
+    properties:
+      uri:
+        type: string
+        title: Base64 Logo File
   transition: icon-tempfile
 - id: icon-tempfile
   type: setter
@@ -39,9 +42,12 @@ states:
         - mypic.png
   transition: store-icon
 - id: store-icon
-  type: setter
-  variables:
-  - scope: namespace
-    key: 'jq(("icon_" + .args.key))'
-    mimeType: application/octet-stream
-    value: 'jq(.return.images[0].result)'
+  type: action 
+  action:
+    function: pq 
+    input:
+      queries: 
+        - UPDATE apps SET icon = decode(:'LOGO', 'base64') WHERE uri = :'URI'
+      args:
+        - 'jq("URI=" + .uri)'
+        - 'jq("LOGO=" + .return.images[0].result)'
