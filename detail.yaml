@@ -1,23 +1,39 @@
 description: |
   Service to retrieve an app's swagger documentation (in JSON form). 
-  GET /api/namespaces/apps-svc/tree/detail?op=wait&input.uri={{uri}}&input.tag={{tag}}&field=output&raw-output=true&ctype=application/json
+  GET /api/namespaces/apps-svc/tree/detail?op=wait&input.uri={{uri}}&input.tag={{tag}}&field=detail&raw-output=true&ctype=application/json
 functions:
-- type: subflow
-  id: key
-  workflow: 'uri-tag-key'
+- id: pq
+  type: subflow
+  workflow: db/pq
 states:
-- id: stringify-args
-  type: action
+- id: validate
+  type: validate
+  schema:
+    title: Detail
+    type: object
+    required:
+    - uri
+    - tag
+    properties:
+      uri:
+        type: string
+      tag:
+        type: string
+  transition: fetch-app
+- id: fetch-app
+  type: action 
   action:
-    function: key
-    input: 'jq(.)'
-  transform: 
-    args: 'jq(.return)'
-  transition: retrieve-swagger
-- id: retrieve-swagger
-  type: getter
-  variables:
-  - scope: namespace
-    key: 'jq(("spec_" + .args.key))'
-    as: x
-  transform: 'jq({output: .var.x})'
+    function: pq 
+    input:
+      queries: 
+        - SELECT encode(md, 'base64') as md, encode(info, 'base64') as info FROM apps where uri = :'URI' and tag = :'TAG'
+        - SELECT tag FROM apps where uri = :'URI' order by created_at
+      args:
+        - 'jq("URI=" + .uri)'
+        - 'jq("TAG=" + .tag)'
+  transform:
+    detail:
+      tags: jq([.return.return.queries[1].result.[] | .tag])
+      markdown: jq(.return.return.queries[0].result[0].md | @base64d)
+      info: jq(.return.return.queries[0].result[0].info | @base64d | fromjson)
+
