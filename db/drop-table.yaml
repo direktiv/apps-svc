@@ -1,0 +1,16 @@
+description: |
+  Call to initialize the tables for the database.
+  Ensure that the database secrets have been configured (see /pq).
+functions:
+- id: pq
+  type: subflow
+  workflow: "pq"
+states:
+- id: a
+  type: action
+  action:
+    function: pq
+    input:
+      queries:
+        - 'drop table if exists apps'
+
