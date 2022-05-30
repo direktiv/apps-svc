@@ -12,5 +12,5 @@ states:
     function: pq
     input:
       queries:
-        - 'CREATE TABLE IF NOT EXISTS apps (uri TEXT, tag TEXT, created_at TIMESTAMP DEFAULT now(), md bytea NOT NULL, icon bytea, swagger bytea NOT NULL, info bytea NOT NULL, PRIMARY KEY (uri, tag))'
+        - 'CREATE TABLE IF NOT EXISTS apps (name TEXT, tag TEXT, created_at TIMESTAMP DEFAULT now(), md bytea NOT NULL, icon bytea, swagger bytea NOT NULL, info bytea NOT NULL, PRIMARY KEY (uri, tag))'
 
