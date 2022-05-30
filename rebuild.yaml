@@ -21,9 +21,9 @@ states:
       # select get maxdate app from database. that is not the version but 
       # most likely it the latest will be the latest version
       - >- 
-        SELECT a.uri, a.created_at, a.tag, encode(info, 'base64') as info from apps 
-        AS a INNER JOIN (SELECT uri, max(created_at) AS maxdate FROM apps GROUP BY uri) tm 
-        ON a.uri = tm.uri AND a.created_at = tm.maxdate
+        SELECT a.name, a.created_at, a.tag, encode(info, 'base64') as info from apps 
+        AS a INNER JOIN (SELECT name, max(created_at) AS maxdate FROM apps GROUP BY name) tm 
+        ON a.name = tm.name AND a.created_at = tm.maxdate
   transform: 'jq({data: .return.return.queries[0].result})'
   transition: prepare
 - id: prepare
@@ -31,8 +31,8 @@ states:
   transform: 
     # gets the info from db and uses fromjson to convert it. then rearrange it
     list: >-
-      jq([ .data[] | .uri as $uri |  (.info | @base64d | fromjson ) as $meta |
-        { $uri: { "tag": .tag, "uri": $uri, "created": .created_at, 
+      jq([ .data[] | .name as $name |  (.info | @base64d | fromjson ) as $meta |
+        { $name: { "tag": .tag, "name": $name, "created": .created_at, 
         "categories": $meta."x-direktiv-meta".categories, "description": 
         $meta.description, "title": $meta.title  }  } ])
   transition: setter

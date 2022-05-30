@@ -12,10 +12,10 @@ states:
     title: Detail
     type: object
     required:
-    - uri
+    - name
     - tag
     properties:
-      uri:
+      name:
         type: string
       tag:
         type: string
@@ -26,10 +26,10 @@ states:
     function: pq 
     input:
       queries: 
-        - SELECT encode(md, 'base64') as md, encode(info, 'base64') as info FROM apps where uri = :'URI' and tag = :'TAG'
-        - SELECT tag FROM apps where uri = :'URI' order by created_at
+        - SELECT encode(md, 'base64') as md, encode(info, 'base64') as info FROM apps where name = :'NAME' and tag = :'TAG'
+        - SELECT tag FROM apps where name = :'NAME' order by created_at
       args:
-        - 'jq("URI=" + .uri)'
+        - 'jq("NAME=" + .name)'
         - 'jq("TAG=" + .tag)'
   transform:
     detail:

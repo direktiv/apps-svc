@@ -52,7 +52,8 @@ states:
       data: spec
       output-format: json 
       input-type: file
-  transform: 'jq(.spec = .return.output.result | del(.return) | .uri = .spec.info."x-direktiv-meta".container | .tag = .spec.info.version)'
+  # transform: 'jq(.spec = .return.output.result | del(.return) | .uri = .spec.info."x-direktiv-meta".container | .tag = .spec.info.version)'
+  transform: 'jq(.spec = .return.output.result | del(.return) | .name = .spec.info.title | .tag = .spec.info.version)'
   transition: generate-docs
 
 # generate markdown 
@@ -77,14 +78,14 @@ states:
     function: pq 
     input:
       queries: 
-        - "UPDATE apps SET created_at = now() WHERE uri = :'URI' AND tag = :'TAG'"
+        - "UPDATE apps SET created_at = now() WHERE name = :'NAME' AND tag = :'TAG'"
         - >- 
-          INSERT INTO apps (uri, tag, md, icon, swagger, info) VALUES 
-          (:'URI', :'TAG', decode(:'DOCS', 'base64'), null, decode(:'SWAGGER', 'base64'), decode(:'INFO', 'base64'))
-          ON CONFLICT (uri,tag) DO 
+          INSERT INTO apps (name, tag, md, icon, swagger, info) VALUES 
+          (:'NAME', :'TAG', decode(:'DOCS', 'base64'), null, decode(:'SWAGGER', 'base64'), decode(:'INFO', 'base64'))
+          ON CONFLICT (name,tag) DO 
           UPDATE SET md = decode(:'DOCS', 'base64'), swagger = decode(:'SWAGGER', 'base64'), info = decode(:'INFO', 'base64')
       args:
-        - 'jq("URI=" + .uri)'
+        - 'jq("NAME=" + .name)'
         - 'jq("TAG=" + .tag)'
         - 'jq("DOCS=" + .docs)'
         - 'jq("SWAGGER=" + .data)'
@@ -101,8 +102,9 @@ states:
 # if there is a logo in the request we resize it
 - id: resize-logo
   type: action
+  log: jq(.)
   action:
     function: logo
     input:
-      uri: jq(.uri)
+      name: jq(.name)
       data: jq(.logo)

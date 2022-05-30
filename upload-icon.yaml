@@ -47,7 +47,7 @@ states:
     function: pq 
     input:
       queries: 
-        - UPDATE apps SET icon = decode(:'LOGO', 'base64') WHERE uri = :'URI'
+        - UPDATE apps SET icon = decode(:'LOGO', 'base64') WHERE name = :'NAME'
       args:
-        - 'jq("URI=" + .uri)'
+        - 'jq("NAME=" + .name)'
         - 'jq("LOGO=" + .return.images[0].result)'

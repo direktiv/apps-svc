@@ -12,9 +12,9 @@ states:
     function: pq 
     input:
       queries: 
-        - SELECT encode(icon, 'base64') as icon FROM apps where uri = :'URI' and icon is not null order by created_at desc limit 1
+        - SELECT encode(icon, 'base64') as icon FROM apps where name = :'NAME' and icon is not null order by created_at desc limit 1
       args:
-        - 'jq("URI=" + .uri)'
+        - 'jq("NAME=" + .name)'
   transition: check-default
   transform: 
     # set to empty string if no response
