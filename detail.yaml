@@ -13,20 +13,20 @@ states:
     type: object
     required:
     - name
-    - tag
     properties:
       name:
         type: string
       tag:
         type: string
   transition: fetch-app
+
 - id: fetch-app
   type: action 
   action:
     function: pq 
     input:
       queries: 
-        - SELECT encode(md, 'base64') as md, encode(info, 'base64') as info FROM apps where name = :'NAME' and tag = :'TAG'
+        - SELECT encode(md, 'base64') as md, encode(info, 'base64') as info, created_at as created FROM apps where name = :'NAME' and tag = :'TAG'
         - SELECT tag FROM apps where name = :'NAME' order by created_at
       args:
         - 'jq("NAME=" + .name)'
@@ -36,4 +36,5 @@ states:
       tags: jq([.return.return.queries[1].result.[] | .tag])
       markdown: jq(.return.return.queries[0].result[0].md | @base64d)
       info: jq(.return.return.queries[0].result[0].info | @base64d | fromjson)
+      created: jq(.return.return.queries[0].result[0].created)
 
