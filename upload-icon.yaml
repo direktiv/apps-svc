@@ -37,7 +37,7 @@ states:
         scope: instance
     input:
       commands:
-        - convert icon.png -resize 100x100 mypic.png
+        - convert icon.png -quality 100% -normalize -density 180 -resize 160 mypic.png
       return:
         - mypic.png
   transition: store-icon
