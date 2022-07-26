@@ -15,10 +15,14 @@ states:
   schema:
     title: Upload Logo
     type: object
+    required: ["data", "name"]
     properties:
-      uri:
+      data:
         type: string
         title: Base64 Logo File
+      name:
+        type: string
+        title: App name
   transition: icon-tempfile
 - id: icon-tempfile
   type: setter
