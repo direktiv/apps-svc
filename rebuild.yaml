@@ -5,12 +5,6 @@ functions:
 - id: pq
   type: subflow 
   workflow: "db/pq"
-# - id: generate-tags
-#   type: subflow 
-#   workflow: "generate-tags"
-# - id: load-specs
-#   type: subflow 
-#   workflow: "load-specs"
 states:
 - id: lookup-apps
   type: action
@@ -36,6 +30,8 @@ states:
         "categories": $meta."x-direktiv-meta".categories, "description": 
         $meta.description, "title": $meta.title  }  } ])
   transition: setter
+
+# set list as namepscae variable
 - id: setter
   type: setter
   variables:

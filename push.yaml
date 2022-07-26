@@ -1,6 +1,6 @@
 description: |
   Service to upload an app's swagger file. 
-  The instance input must be a JSON object containing 'uri', 'tag', and 'data', where 'data' is a base64 encoded YAML swagger spec.
+  The instance input must be a JSON object containing 'logo' and 'data', where 'data' is a base64 encoded YAML swagger spec.
   The workflow will process the swagger spec and generate other information.
   The /rebuild workflow should be executed after this one. Either periodically as a cron, or manually.
 functions:
@@ -52,7 +52,6 @@ states:
       data: spec
       output-format: json 
       input-type: file
-  # transform: 'jq(.spec = .return.output.result | del(.return) | .uri = .spec.info."x-direktiv-meta".container | .tag = .spec.info.version)'
   transform: 'jq(.spec = .return.output.result | del(.return) | .name = .spec.info.title | .tag = .spec.info.version)'
   transition: generate-docs
 
