@@ -1,2 +1,4 @@
 .direktiv.conf
 **/*.test*.json
+
+.direktiv.yaml

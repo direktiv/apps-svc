@@ -1,23 +1,25 @@
 description: |
-  Work-in-progress.
+  Delete icon from app
 functions:
-- type: subflow
-  id: key
-  workflow: 'uri-key'
+- id: pq
+  type: subflow
+  workflow: ../db/pq
 states:
-- id: a
+- id: validate
+  type: validate
+  schema:
+    type: object
+    required: ["name"]
+    properties:
+      name:
+        type: string
+  transition: delete-icon
+- id: delete-icon
   type: action 
-  log: 'jq(.)'
   action:
-    function: key
-    input: 'jq(.)'
-  transform: 
-    args: 'jq(.return)'
-  transition: b
-- id: b
-  type: setter
-  log: 'jq(.)'
-  variables:
-  - scope: namespace
-    key: 'jq(("icon_" + .args.key))'
-    value: 'jq(null)'
+    function: pq 
+    input:
+      queries: 
+        - UPDATE apps SET icon = NULL where name = :'NAME'
+      args:
+        - 'jq("NAME=" + .name)'
