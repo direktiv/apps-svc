@@ -18,7 +18,7 @@ states:
   transition: check-default
   transform: 
     # set to empty string if no response
-    icon: jq(.return.return.queries[0].result[0].icon // "")
+    icon: jq(.return.return.usql[0].result[0].icon // "")
 - id: check-default
   type: switch
   log: jq(.icon)
