@@ -33,7 +33,7 @@ states:
         - 'jq("TAG=" + .tag)'
   transform:
     detail:
-      tags: jq(.return.return.usql[1].result.[] | .tag)
+      tags: jq([ .return.return.usql[1].result.[] | .tag ])
       markdown: jq(.return.return.usql[0].result[0].md | @base64d)
       info: jq(.return.return.usql[0].result[0].info | @base64d | fromjson)
       created: jq(.return.return.usql[0].result[0].created)
