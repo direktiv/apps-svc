@@ -5,7 +5,7 @@ description: |
 functions:
 - id: usql
   service: db
-  type: knative-namespace
+  type: knative-global
 states:
 - id: sql
   type: action 
