@@ -18,7 +18,8 @@ states:
         SELECT a.name, a.created_at, a.tag, encode(info, 'base64') as info from apps 
         AS a INNER JOIN (SELECT name, max(created_at) AS maxdate FROM apps GROUP BY name) tm 
         ON a.name = tm.name AND a.created_at = tm.maxdate
-  transform: 'jq({data: .return.return.queries[0].result})'
+  transform: 
+    data: jq(.return.return.usql[0].result)
   transition: prepare
 - id: prepare
   type: noop
