@@ -1,6 +1,6 @@
 description: |
   Service to retrieve an app's icon. 
-  GET /api/namespaces/apps-svc/tree/icon?op=wait&input.uri={{uri}}&field=icon&raw-output=true&ctype=image/png
+  GET /api/namespaces/apps-svc/tree/icon?op=wait&input.name={{uri}}&field=icon&raw-output=true&ctype=image/png
 functions:
 - id: pq
   type: subflow
